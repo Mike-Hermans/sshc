@@ -13,7 +13,7 @@ class Config:
         try:
             config = open(self.path + 'config')
         except:
-            print "Could not open %sconfig file" % self.path
+            print("Could not open %sconfig file" % self.path)
             sys.exit(1)
         hosts = []
         host = {}

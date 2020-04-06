@@ -45,32 +45,32 @@ class SSHC:
             try:
                 getattr(self, "c_%s" % self.command)()
             except Exception as error:
-                print "Error executing command"
+                print("Error executing command")
             return
-        print "Command '%s' not found" % self.command
+        print("Command '%s' not found" % self.command)
 
     # Check if host entry exists, if not, exit
     def require_host(self, host):
         if not self.config.get_host(host):
-            print "Host %s does not exist" % host
+            print("Host %s does not exist" % host)
             sys.exit(1)
 
     # Count if there are enough arguments
     def min_args(self, args):
         if not self.args or len(self.args) < len(args):
-            print "Need %s arguments (%s)" % (len(args), ', '.join(args))
+            print("Need %s arguments (%s)" % (len(args), ', '.join(args)))
             sys.exit(1)
 
     # Show a list of commands
     def c_help(self):
-        print "Commands:"
-        print "help             | Prints this list"
-        print "list             | Lists all hosts"
-        print "get <host>       | Returns information for chosen host"
-        print "remove <host>    | Removes a host"
-        print "sort             | Sorts the host file alphabetically"
-        print "add <host> <user>@<hostname>[:port] [id_rsa key] | Adds a new host"
-        print "update <host> <parameter> <value> | Adds a parameter to a host, removes it if value is unset"
+        print("Commands:")
+        print("help             | Prints this list")
+        print("list             | Lists all hosts")
+        print("get <host>       | Returns information for chosen host")
+        print("remove <host>    | Removes a host")
+        print("sort             | Sorts the host file alphabetically")
+        print("add <host> <user>@<hostname>[:port] [id_rsa key] | Adds a new host")
+        print("update <host> <parameter> <value> | Adds a parameter to a host, removes it if value is unset")
 
     # List currently saved hosts
     def c_list(self):
@@ -87,7 +87,7 @@ class SSHC:
 
             if config.get('IdentityFile'):
                 line += " (key: %s)" % config['IdentityFile']
-            print line
+            print(line)
 
     # Get more details about a specific host
     def c_get(self):
@@ -95,11 +95,11 @@ class SSHC:
 
         config = self.config.get_host(self.args[0])
         if not config:
-            print "Host '%s' not found." % self.args[0]
+            print("Host '%s' not found." % self.args[0])
             sys.exit(1)
 
         for line in config:
-            print line + ": " + config[line]
+            print(line + ": " + config[line])
 
     # Add a new entry to the config file
     def c_add(self):
@@ -107,7 +107,7 @@ class SSHC:
         host = self.args[0]
 
         if self.config.get_host(host):
-            print "Host %s already exists" % host
+            print("Host %s already exists" % host)
             sys.exit(1)
 
         user_host = self.args[1]
@@ -115,7 +115,7 @@ class SSHC:
         # Match it for [user]@[server]
         match = re.search(r'(.+)@(.+)', user_host)
         if not match:
-            print "Invalid user@host"
+            print("Invalid user@host")
             sys.exit(1)
 
         user = match.group(1)
@@ -128,15 +128,15 @@ class SSHC:
         }
 
         if len(server) > 1:
-		new_host['Port'] = server[1]
+            new_host['Port'] = server[1]
 
         if len(self.args) > 2:
-		new_host['IdentityFile'] = '~/.ssh/%s' % self.args[2]
+            new_host['IdentityFile'] = '~/.ssh/%s' % self.args[2]
 
         self.config.add_host(new_host)
 
         self.config.save()
-        print "%s has been added to the config file" % host
+        print("%s has been added to the config file" % host)
 
     # Remove an entry from the config file
     def c_remove(self):
@@ -146,7 +146,7 @@ class SSHC:
 
         self.config.remove_host(host)
         self.config.save()
-        print "%s removed from config file" % host
+        print("%s removed from config file" % host)
 
     # Update parameters for a host entry
     def c_update(self):
@@ -166,8 +166,8 @@ class SSHC:
         value = False
 
         if parameter not in valid_parameters:
-            print "Parameter '%s' is not valid, valid parameters are: " % parameter
-            print ', '.join(valid_parameters)
+            print("Parameter '%s' is not valid, valid parameters are: " % parameter)
+            print(', '.join(valid_parameters))
             sys.exit(1)
 
         if self.args[2] != 'unset':
@@ -176,12 +176,12 @@ class SSHC:
         self.config.update_host(host, parameter, value)
         self.config.save()
         if value == 'unset':
-            print '%s: %s has been removed' % (host, parameter)
+            print('%s: %s has been removed' % (host, parameter))
         else:
-            print '%s: %s has been set to %s' % (host, parameter, value)
+            print('%s: %s has been set to %s' % (host, parameter, value))
 
     # Sort the entries in the config file
     def c_sort(self):
         self.config.sort_config()
         self.config.save()
-        print "Config file sorted!"
+        print("Config file sorted!")
